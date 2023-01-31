@@ -1,49 +1,33 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
-	"log"
-	"net/http"
-	"encoding/json"
 
-	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
-type Founder struct{
-	Name string `json:"title"`
-	Age uint32 `json:"age"`
-	Email string `json:"email"`
-	Company string `json:"company"`
+type Post struct {
+	id        int64
+	title     string
+	content   string
+	published bool
+	author    User
+	authorId  int64
 }
 
-var founders []Founder
-
-func greetingsHandler(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintf(w,"Greeting from Go Server 👋")
+type User struct {
+	id    int64
+	name  string
+	email string
+	posts []Post
 }
 
-func formHandler(w http.ResponseWriter, r *http.Request){
-	w.Header().Set("Content-Type", "application/json")
+func main() {
+	db, err := sql.Open("postgres", "host=localhost port=5433 user=admin password=admin dbname=db sslmode=disable")
+	defer db.Close()
 
-	var founder Founder
-	json.NewDecoder(r.Body).Decode(&founder)
-
-	founder.Age = founder.Age * 2
-	founders = append(founders, founder)
-
-	json.NewEncoder(w).Encode(founders)
-}
-
-func main(){
-	r := mux.NewRouter()
-
-	founders = append(founders, Founder{Name:"Mehul",Age:23,Email:"random@random.com",Company: "BharatX"})
-  r.HandleFunc("/form",formHandler).Methods("POST")
-
-	r.HandleFunc("/", greetingsHandler).Methods("GET")
-	r.HandleFunc("/form",formHandler).Methods("POST")
-
-	fmt.Println("Hello from GoServer 👋")
-	fmt.Printf("Starting server at port 8000\n")
-	log.Fatal(http.ListenAndServe(":8000",r))
+	if err != nil {
+		fmt.Println(err)
+	}
 }
