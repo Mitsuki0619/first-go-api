@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -25,9 +25,12 @@ type User struct {
 
 func main() {
 	db, err := sql.Open("postgres", "host=localhost port=5433 user=admin password=admin dbname=db sslmode=disable")
-	defer db.Close()
-
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal("OpenError:", err)
+	}
+
+	defer db.Close()
+	if err := db.Ping(); err != nil {
+		log.Fatal("PingError:", err)
 	}
 }
