@@ -23,6 +23,21 @@ type User struct {
 	posts []Post
 }
 
+func Insert(db *sql.DB) error {
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS test_user (
+		id SERIAL NOT NULL PRIMARY KEY,
+		name VARCHAR(10))`)
+		if err != nil {
+			return err
+		}
+
+		_, err = db.Exec("INSERT INTO test_user (name) VALUES ('tom')")
+		if err != nil {
+			return err
+		}
+		return nil
+}
+
 func main() {
 	db, err := sql.Open("postgres", "host=localhost port=5433 user=admin password=admin dbname=db sslmode=disable")
 	if err != nil {
